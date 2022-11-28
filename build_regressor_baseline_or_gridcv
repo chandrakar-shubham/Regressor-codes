@@ -1,0 +1,65 @@
+def build_model_regressor(model_type,para_dict=None):
+
+  def score_calulator(model_name):
+    '''calculate MSE, RMSE , R2 Score on train set, R2 Score on test set, Adjusted R2 score''' 
+    # calculate predicted value of of test set
+    y_pred = model_name.predict(X_test)
+
+    # calculate predicted value of of test set
+    y_pred_t= model_name.predict(X_train)
+  
+    #Calculate mean sqrt error
+
+    mse  = mean_squared_error(y_test,y_pred)
+    #print("MSE :" , MSE)
+  
+    #calculate Root means squared error
+
+    rmse = np.sqrt(mse)
+    #print("RMSE :" ,RMSE)
+  
+    #r2_train= model_name.score(X_train,y_train)
+
+    #Calculate R2 score on train set
+    r2_train= r2_score(y_train,y_pred_t)
+  
+    #calculate R2 score on test set
+    r2_test= r2_score((y_test),(y_pred))
+
+    #calculate adjusted R2 score on test set
+
+    aj_r2= 1-(1-r2_score((y_test), (y_pred)))*((X_test.shape[0]-1)/(X_test.shape[0]-X_test.shape[1]-1))
+
+    return mse,rmse,r2_train,r2_test,aj_r2
+
+  
+  def best_modelcv(model_type):
+    reg = model_type
+    reg_cv = GridSearchCV(reg, param_grid = para_dict, scoring='neg_mean_squared_error', cv=5)
+    reg_cv.fit(X_train, y_train.ravel())
+    reg_optimum = reg_cv.best_estimator_
+
+    return reg_optimum
+
+  def best_model_baseline(model_type):
+    reg = model_type
+    reg.fit(X_train, y_train.ravel())
+    reg_optimum = reg
+    return reg_optimum
+
+  best_model = best_model_baseline(model_type)
+
+  if para_dict == None:
+    best_model = best_model_baseline(model_type)
+  else:
+    best_model = best_modelcv(model_type)
+
+
+
+
+
+  #best_model = best_model(model_type)
+
+  MSE,RMSE,R2train,R2test,ADJR2 = score_calulator(best_model)
+
+  return MSE,RMSE,R2train,R2test,ADJR2,best_model
