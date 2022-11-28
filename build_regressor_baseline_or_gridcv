@@ -1,6 +1,9 @@
 def build_model_regressor(model_type,para_dict=None):
+  
+  '''Input modeltype, parameter dictionary and returns model scores and best model estimator'''
 
   def score_calulator(model_name):
+    
     '''calculate MSE, RMSE , R2 Score on train set, R2 Score on test set, Adjusted R2 score''' 
     # calculate predicted value of of test set
     y_pred = model_name.predict(X_test)
@@ -34,6 +37,9 @@ def build_model_regressor(model_type,para_dict=None):
 
   
   def best_modelcv(model_type):
+    
+    '''function to find best model after performing hyperparameter tuning using gridsearch cv'''
+    
     reg = model_type
     reg_cv = GridSearchCV(reg, param_grid = para_dict, scoring='neg_mean_squared_error', cv=5)
     reg_cv.fit(X_train, y_train.ravel())
@@ -42,6 +48,9 @@ def build_model_regressor(model_type,para_dict=None):
     return reg_optimum
 
   def best_model_baseline(model_type):
+    
+    '''function to build baseline model'''
+   
     reg = model_type
     reg.fit(X_train, y_train.ravel())
     reg_optimum = reg
@@ -50,8 +59,13 @@ def build_model_regressor(model_type,para_dict=None):
   best_model = best_model_baseline(model_type)
 
   if para_dict == None:
+    
+    #if no parameter dictionary is provided build baseline model
     best_model = best_model_baseline(model_type)
+  
   else:
+
+    #If parameter dictionary is given build model after hyper parameter tuning using GridSearchCV
     best_model = best_modelcv(model_type)
 
 
